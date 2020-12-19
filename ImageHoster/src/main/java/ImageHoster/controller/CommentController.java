@@ -22,8 +22,8 @@ import java.time.LocalDate;
 @Controller
 public class CommentController {
 
-    @Autowired
-    private CommentService comService;
+    @Autowired(required = true)
+    private CommentService commentService;
 
     @Autowired
     private ImageService imService;
@@ -46,8 +46,9 @@ public class CommentController {
                 = LocalDate.now(clock);
         comment.setCreatedDate(localDate);
         comment.setImage(image);
-        comService.postComment(comment);
+
         model.addAttribute("comments", comment);
+        commentService.postComment(comment);
         //redirect to showimage method through its mapping
         return "redirect:/images/" + image.getId() + "/" + image.getTitle();
 

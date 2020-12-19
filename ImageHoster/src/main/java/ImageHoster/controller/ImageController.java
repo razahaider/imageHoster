@@ -29,8 +29,8 @@ public class ImageController {
     @Autowired
     private TagService tagService;
 
-    @Autowired
-    private CommentService comService;
+    @Autowired(required = true)
+    private CommentService commentService;
 
     //This method displays all the images in the user home page after successful login
     @RequestMapping("images")
@@ -55,7 +55,7 @@ public class ImageController {
         //Image image = imageService.getImageByTitle(title);
 
         Image image = imageService.getImage(imageId);
-        List<Comment> commentsList = comService.getAllComments(image.getTitle(), image.getId());
+        List<Comment> commentsList = commentService.getAllComments(image.getTitle(), image.getId());
         model.addAttribute("comments", commentsList);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
@@ -105,7 +105,7 @@ public class ImageController {
     public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session) {
         Image image = imageService.getImage(imageId);
 
-        List<Comment> commentsList = comService.getAllComments(image.getTitle(), image.getId());
+        List<Comment> commentsList = commentService.getAllComments(image.getTitle(), image.getId());
         model.addAttribute("comments", commentsList);
 
         User owner = image.getUser();
@@ -166,7 +166,7 @@ public class ImageController {
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
     public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, HttpSession session, Model model) {
         Image image = imageService.getImage(imageId);
-        List<Comment> commentsList = comService.getAllComments(image.getTitle(), image.getId());
+        List<Comment> commentsList = commentService.getAllComments(image.getTitle(), image.getId());
         model.addAttribute("comments", commentsList);
 
         User owner = image.getUser();
@@ -214,15 +214,20 @@ public class ImageController {
     //Converts the list of all tags to a single string containing all the tags separated by a comma
     //Returns the string
     private String convertTagsToString(List<Tag> tags) {
+
+        if (tags == null || tags.isEmpty()) {
+            return "";
+        }
         StringBuilder tagString = new StringBuilder();
 
         for (int i = 0; i <= tags.size() - 2; i++) {
-            tagString.append(tags.get(i).getName()).append(",");
+                tagString.append(tags.get(i).getName()).append(",");
+            }
+
+            Tag lastTag = tags.get(tags.size() - 1);
+            tagString.append(lastTag.getName());
+
+            return tagString.toString();
         }
 
-        Tag lastTag = tags.get(tags.size() - 1);
-        tagString.append(lastTag.getName());
-
-        return tagString.toString();
-    }
 }
