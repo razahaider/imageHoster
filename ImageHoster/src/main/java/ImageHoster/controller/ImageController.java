@@ -112,8 +112,11 @@ public class ImageController {
         User user = (User) session.getAttribute("loggeduser");
 
         String tags = convertTagsToString(image.getTags());
-        model.addAttribute("image", image);
         model.addAttribute("tags", tags);
+
+
+        model.addAttribute("image", image);
+
 
         if (user.getId().equals(owner.getId())) {
             return "images/edit";
@@ -215,12 +218,9 @@ public class ImageController {
     //Returns the string
     private String convertTagsToString(List<Tag> tags) {
 
-        if (tags == null || tags.isEmpty()) {
-            return "";
-        }
         StringBuilder tagString = new StringBuilder();
-
-        for (int i = 0; i <= tags.size() - 2; i++) {
+        if (!(tags.size() <= 0)) {
+            for (int i = 0; i <= tags.size() - 2; i++) {
                 tagString.append(tags.get(i).getName()).append(",");
             }
 
@@ -228,6 +228,8 @@ public class ImageController {
             tagString.append(lastTag.getName());
 
             return tagString.toString();
+        } else {
+            return "";
         }
-
+    }
 }
