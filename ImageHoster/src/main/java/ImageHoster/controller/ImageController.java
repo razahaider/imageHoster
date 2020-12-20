@@ -174,20 +174,27 @@ public class ImageController {
     //Looks for a controller method with request mapping of type '/images'
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
     public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, HttpSession session, Model model) {
+
+        String error = "Only the owner of the image can delete the image";
         Image image = imageService.getImage(imageId);
+        String tags = convertTagsToString(image.getTags());
+        List<Tag> tag = findOrCreateTags(tags);
+        model.addAttribute("image", image);
+        model.addAttribute("tags", tag);
         List<Comment> commentsList = commentService.getAllComments(image.getTitle(), image.getId());
         model.addAttribute("comments", commentsList);
 
         User owner = image.getUser();
         User user = (User) session.getAttribute("loggeduser");
-        if (user.getId().equals(owner.getId())) {
+
+        if (user.getId()==owner.getId()) {
             imageService.deleteImage(imageId);
             return "redirect:/images";
         } else {
-            String error = "Only the owner of the image can delete the image";
+
             model.addAttribute("deleteError", error);
-            model.addAttribute("image", image);
-            model.addAttribute("tags", image.getTags());
+           // model.addAttribute("image", image);
+            //model.addAttribute("tags", image.getTags());
             return "/images/image";
         }
     }
