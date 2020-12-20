@@ -103,28 +103,34 @@ public class ImageController {
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
     public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session) {
+
+
+        User user = (User) session.getAttribute("loggeduser");
         Image image = imageService.getImage(imageId);
+        User owner = image.getUser();
+
 
         List<Comment> commentsList = commentService.getAllComments(image.getTitle(), image.getId());
-        model.addAttribute("comments", commentsList);
-
-        User owner = image.getUser();
-        User user = (User) session.getAttribute("loggeduser");
-
-        String tags = convertTagsToString(image.getTags());
-        model.addAttribute("tags", tags);
 
 
         model.addAttribute("image", image);
 
 
         if (user.getId().equals(owner.getId())) {
+            String tags = convertTagsToString(image.getTags());
+            model.addAttribute("tags", tags);
             return "images/edit";
-        } else {
+        }
+        else {
             String error = "Only the owner of the image can edit the image";
             model.addAttribute("editError", error);
+            model.addAttribute("tags", image.getTags());
+            model.addAttribute("comments", commentsList);
+
             return "/images/image";
         }
+
+
         // return "images/edit";
     }
 
@@ -219,17 +225,17 @@ public class ImageController {
     private String convertTagsToString(List<Tag> tags) {
 
         StringBuilder tagString = new StringBuilder();
-        if (!(tags.size() <= 0)) {
+
             for (int i = 0; i <= tags.size() - 2; i++) {
                 tagString.append(tags.get(i).getName()).append(",");
             }
-
+        if (tags.size() > 0) {
             Tag lastTag = tags.get(tags.size() - 1);
             tagString.append(lastTag.getName());
+        }
+
 
             return tagString.toString();
-        } else {
-            return "";
-        }
+
     }
 }
